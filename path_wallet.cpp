@@ -28,13 +28,33 @@ PathWalletData parse_wallet_data_string(std::string entrypoint)
    return result;
 }
 
-void create_path(std::fstream& wallet, std::string name, std::string path)
+bool name_already_exists(std::fstream& wallet, std::string name)
+{
+   PathWalletData result;
+   std::string line;
+   while(std::getline(wallet, line))
+   {
+      result = parse_wallet_data_string(line);
+      if(result.name == name)
+         return true;
+   }
+   return false;
+}
+
+bool create_path(std::fstream& wallet, std::string name, std::string path)
 {
    if(path == ".")
    {
       path = std::filesystem::current_path();
    }
+
+   if(name_already_exists(wallet, name))
+   {
+      std::cout << "[Path Wallet Error] Name Already Exists!" << std::endl;
+      return false;
+   }
    wallet << name << "|" << path << "\n"; 
+   return true;
 }
 
 void list_paths(std::fstream& wallet)
@@ -60,8 +80,8 @@ int main(int argc, char* argv[])
       std::string option(argv[1]);
       if(option == "-c")
       {
-         create_path(wallet_file, argv[2], argv[3]);
-         std::cout << "[Path Wallet] New Path Created!" << std::endl;
+         if(create_path(wallet_file, argv[2], argv[3]))
+            std::cout << "[Path Wallet] New Path Created!" << std::endl;
       }
       else if(option == "-l")
       {
