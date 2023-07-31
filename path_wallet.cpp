@@ -36,8 +36,13 @@ bool name_already_exists(std::fstream& wallet, std::string name)
    {
       result = parse_wallet_data_string(line);
       if(result.name == name)
+      {
          return true;
+      }
    }
+   
+   wallet.clear();
+   wallet.seekg(0);
    return false;
 }
 
