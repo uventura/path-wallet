@@ -1,4 +1,5 @@
 // D E F I N E S
+#define PATH_WALLET_STORAGE_PATH ".path_wallet.data"
 #define TITLE_FOREGROUND 30
 #define TITLE_BACKGROUND 104
 
@@ -26,6 +27,14 @@ PathWalletData parse_wallet_data_string(std::string entrypoint)
    std::getline(substrings, result.path, splitter);
 
    return result;
+}
+
+void clear_wallet(std::fstream& wallet)
+{
+   wallet.close();
+   wallet.open(PATH_WALLET_STORAGE_PATH, std::ofstream::out | std::ofstream::trunc);
+   wallet.close();
+   wallet.open(PATH_WALLET_STORAGE_PATH, std::ios_base::app | std::ios_base::in);
 }
 
 bool name_already_exists(std::fstream& wallet, std::string name)
@@ -74,11 +83,37 @@ void list_paths(std::fstream& wallet)
    }
 }
 
+PathWalletData remove_path(std::fstream& wallet, std::string name)
+{
+   PathWalletData result;
+
+   std::string new_file_content = "";
+   std::string line;
+   bool founded = false;
+
+   while(std::getline(wallet, line))
+   {
+      if(!founded)
+      {
+         result = parse_wallet_data_string(line); 
+         founded = (bool)(result.name == name);
+      }
+      else
+      {
+         new_file_content += line + "\n";
+      }
+   }
+
+
+   clear_wallet(wallet);
+   wallet << new_file_content;
+
+   return result;
+}
 
 int main(int argc, char* argv[]) 
 {
-   std::string path_storage = ".path_wallet.data";
-   std::fstream wallet_file(path_storage, std::ios_base::app | std::ios_base::in);
+   std::fstream wallet_file(PATH_WALLET_STORAGE_PATH, std::ios_base::app | std::ios_base::in);
 
    if(wallet_file.is_open())
    {
@@ -91,6 +126,12 @@ int main(int argc, char* argv[])
       else if(option == "-l")
       {
          list_paths(wallet_file);
+      }
+      else if(option == "-r")
+      {
+         PathWalletData result = remove_path(wallet_file, argv[2]);
+         if(result.name != "NULL")
+            std::cout << "[Path Wallet] Data > '" << result.name << ":" << result.path << "' Removed!" << std::endl;
       }
       else
       {
