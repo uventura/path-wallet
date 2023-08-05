@@ -2,6 +2,7 @@
 #define PATH_WALLET_STORAGE_PATH ".path_wallet.data"
 #define TITLE_FOREGROUND 30
 #define TITLE_BACKGROUND 104
+#define TERMINAL "xfce4-terminal"
 
 // I N C L U D E S
 #include <iostream>
@@ -104,12 +105,28 @@ PathWalletData remove_path(std::fstream& wallet, std::string name)
       }
    }
 
-
    clear_wallet(wallet);
    wallet << new_file_content;
 
    return result;
 }
+
+void access_path(std::fstream& wallet, std::string name)
+{
+   std::string line;
+   while(std::getline(wallet, line))
+   {
+      auto result = parse_wallet_data_string(line);
+      if(result.name == name)
+      {
+         std::string command = "cd " + result.path;
+         command += " && ";
+         command += TERMINAL;
+         system(command.c_str());
+      }
+   }
+}
+
 
 int main(int argc, char* argv[]) 
 {
@@ -132,6 +149,10 @@ int main(int argc, char* argv[])
          PathWalletData result = remove_path(wallet_file, argv[2]);
          if(result.name != "NULL")
             std::cout << "[Path Wallet] Data > '" << result.name << ":" << result.path << "' Removed!" << std::endl;
+      }
+      else if(option == "-a")
+      {
+         access_path(wallet_file, argv[2]);
       }
       else
       {
