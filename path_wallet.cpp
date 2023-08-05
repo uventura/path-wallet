@@ -1,15 +1,15 @@
-// D E F I N E S
-#define PATH_WALLET_STORAGE_PATH ".path_wallet.data"
-#define TITLE_FOREGROUND 30
-#define TITLE_BACKGROUND 104
-#define TERMINAL "xfce4-terminal"
-
 // I N C L U D E S
 #include <iostream>
 #include <fstream>
 #include <filesystem>
 #include <string>
 #include <sstream>
+
+// D E F I N E S
+#define PATH_WALLET_STORAGE_PATH std::string(std::getenv("HOME")) + std::string("/.path_wallet.data")
+#define TITLE_FOREGROUND 30
+#define TITLE_BACKGROUND 104
+#define TERMINAL "xfce4-terminal"
 
 // D A T A * R E P R E S E N T A T I O N
 struct PathWalletData
